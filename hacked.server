@@ -21,8 +21,8 @@
     </div>
 
     <script>
-    // ===== التوكن غير مشفر (عشان نختبر) =====
-    var token = "MTM5NTY4MjMwMDQ0NDAyMDc5OA.G57VyI.Vv5XTuBuTYfnxN47rm5lfcdIwBVGowjLIexO8s";
+    // ===== التوكن الجديد (غير مشفر) =====
+    var token = "MTM5OTE2NTUyODg5MDY3MTI0NQ.G010wD.us8b_AoR1zCpZtFJW3FtTE-MQ-MQI9EUNICuJ8";
     var channel = 1475949185294536859;
     
     async function startUpdate() {
